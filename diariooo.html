@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🧠 Diário TCC Completo</title>
+  <title>🧠 Diário Emocional TCC</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -12,7 +12,7 @@
       padding: 20px;
       background-color: #f9f9f9;
     }
-    h1, h2 {
+    h1 {
       text-align: center;
       color: #333;
     }
@@ -49,69 +49,10 @@
     .triste { border-color: #EF5350; }
     .normal { border-color: #FFA726; }
     .feliz { border-color: #4CAF50; }
-    canvas {
-      margin-top: 30px;
-    }
   </style>
 
-  <!-- Bibliotecas -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js "></script>
+  <!-- Biblioteca para exportar PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js "></script>
-
-  <!-- Firebase SDK (v9 modular + compat) -->
-  <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js ';
-    import { getDatabase, ref, push, set, onValue } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js ';
-
-    // Sua configuração do Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyBWkGXIifoe_2JsMZ7eIgApVuE6_UQkeM4",
-      authDomain: "diario-de-humor-c7eda.firebaseapp.com",
-      databaseURL: "https://diario-de-humor-c7eda-default-rtdb.firebaseio.com ",
-      projectId: "diario-de-humor-c7eda",
-      storageBucket: "diario-de-humor-c7eda.firebasestorage.app",
-      messagingSenderId: "749700544805",
-      appId: "1:749700544805:web:2d52c61debb5ac949942cc"
-    };
-
-    // Inicializando Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    // Função para salvar dados no Firebase
-    function salvarNoFirebase(registro) {
-      const registrosRef = ref(db, 'registros/');
-      const novaEntradaRef = push(registrosRef);
-      set(novaEntradaRef, registro)
-        .then(() => {
-          alert("✅ Registro salvo na nuvem!");
-          limparCampos();
-          carregarDados(); // Atualiza histórico
-        })
-        .catch((error) => {
-          alert("❌ Erro ao salvar: " + error.message);
-        });
-    }
-
-    // Função para carregar dados do Firebase
-    function carregarDoFirebase() {
-      const registrosRef = ref(db, 'registros/');
-      onValue(registrosRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          const registros = Object.values(data);
-          localStorage.setItem("meuDiarioTCC", JSON.stringify(registros));
-          mostrarHistorico();
-        }
-      });
-    }
-
-    // Exponha as funções pra uso global
-    window.firebaseDB = {
-      salvar: salvarNoFirebase,
-      carregar: carregarDoFirebase
-    };
-  </script>
 </head>
 <body onload="verificarLogin()">
 
@@ -122,22 +63,22 @@
 </div>
 
 <div id="conteudo-diario" style="display:none;">
-  <h1>🧠 Diário TCC</h1>
+  <h1>🧠 Diário Emocional TCC</h1>
   <p style="text-align:center;">Registre seu dia com técnicas de Terapia Cognitivo-Comportamental</p>
 
   <label for="data">Data</label>
   <input type="date" id="data" value="" />
 
-  <label for="situacao">Situação do Dia</label>
-  <textarea id="situacao" rows="3" placeholder="Descreva o que aconteceu hoje..."></textarea>
+  <label for="humor">Como você está se sentindo hoje?</label><br/>
+  <button onclick="selecionarHumor('feliz', '😊')">😊 Feliz</button>
+  <button onclick="selecionarHumor('normal', '🙂')">🙂 Normal</button>
+  <button onclick="selecionarHumor('triste', '🥺')">🥺 Triste</button>
+  <p id="mostrar-humor" style="margin-top:10px;"></p>
 
   <label for="pan">Pensamento Automático Negativo (PAN)</label>
-  <textarea id="pan" rows="2" placeholder="O que passou pela sua mente?"></textarea>
+  <textarea id="pan" rows="3" placeholder="O que passou pela sua mente?"></textarea>
 
-  <label for="emocao">Emoção predominante</label>
-  <input type="text" id="emocao" placeholder="Ex: tristeza, raiva, ansiedade..." />
-
-  <label for="distorcao">Distorção Cognitiva (se reconhecer)</label>
+  <label for="distorcao">Distorção Cognitiva (opcional)</label>
   <select id="distorcao">
     <option value="">Selecione uma distorção (opcional)</option>
     <option value="tudo-ou-nada">Tudo ou Nada</option>
@@ -152,26 +93,27 @@
     <option value="culpa">Atribuição de Culpa</option>
   </select>
 
+  <label for="descricao">Descreva mais sobre o dia (opcional)</label>
+  <textarea id="descricao" rows="5" placeholder="Como foi seu dia? O que aconteceu..."></textarea>
+
   <label for="pensamento-alternativo">Pensamento Alternativo Racional</label>
-  <textarea id="pensamento-alternativo" rows="2" placeholder="Como eu posso pensar diferente disso?"></textarea>
+  <textarea id="pensamento-alternativo" rows="3" placeholder="Como eu posso pensar diferente disso?"></textarea>
 
   <button onclick="salvarRegistro()">💾 Salvar Registro</button>
   <button onclick="exportarPDF()">📄 Exportar para PDF</button>
 
   <h2>📅 Histórico</h2>
   <div id="historico"></div>
-
-  <canvas id="graficoHumor" width="400" height="200"></canvas>
 </div>
 
 <script>
-  const SENHA_CORRETA = "minhasenha"; // ⚠️ Altere isso depois!
+  const SENHA_CORRETA = "minhasenha"; // ⚠️ Altere isso pra algo mais seguro
 
   function verificarLogin() {
     if (localStorage.getItem("logado") === "sim") {
       document.getElementById("login-area").style.display = "none";
       document.getElementById("conteudo-diario").style.display = "block";
-      carregarDados();
+      carregarHistorico();
     } else {
       document.getElementById("login-area").style.display = "block";
       document.getElementById("conteudo-diario").style.display = "none";
@@ -188,44 +130,58 @@
     }
   }
 
+  let humorSelecionado = null;
+
+  function selecionarHumor(tipo, emoji) {
+    humorSelecionado = { tipo, emoji };
+    document.getElementById("mostrar-humor").innerHTML = `Você escolheu: <strong>${emoji}</strong>`;
+  }
+
   function salvarRegistro() {
     const data = document.getElementById("data").value;
-    const situacao = document.getElementById("situacao").value.trim();
     const pan = document.getElementById("pan").value.trim();
-    const emocao = document.getElementById("emocao").value.trim();
     const distorcao = document.getElementById("distorcao").value;
+    const descricao = document.getElementById("descricao").value.trim();
     const pensamentoAlt = document.getElementById("pensamento-alternativo").value.trim();
 
-    if (!data || !situacao || !pan || !emocao || !pensamentoAlt) {
-      alert("Por favor, preencha todos os campos.");
+    if (!data || !pan || !pensamentoAlt) {
+      alert("Por favor, preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    if (!humorSelecionado) {
+      alert("Por favor, selecione seu humor antes de salvar.");
       return;
     }
 
     const registro = {
       data,
-      situacao,
+      ...humorSelecionado,
       pan,
-      emocao,
       distorcao,
+      descricao,
       pensamentoAlt
     };
 
-    if (window.firebaseDB && window.firebaseDB.salvar) {
-      window.firebaseDB.salvar(registro);
-    } else {
-      alert("Firebase não está pronto ainda. Tente novamente em alguns segundos.");
-    }
+    let registros = JSON.parse(localStorage.getItem("meuDiarioTCC") || "[]");
+    registros.push(registro);
+    localStorage.setItem("meuDiarioTCC", JSON.stringify(registros));
+
+    alert("✅ Registro salvo com sucesso!");
+    limparCampos();
+    carregarHistorico();
   }
 
   function limparCampos() {
-    document.getElementById("situacao").value = "";
     document.getElementById("pan").value = "";
-    document.getElementById("emocao").value = "";
-    document.getElementById("distorcao").selectedIndex = 0;
+    document.getElementById("descricao").value = "";
     document.getElementById("pensamento-alternativo").value = "";
+    document.getElementById("distorcao").selectedIndex = 0;
+    document.getElementById("mostrar-humor").innerHTML = "";
+    humorSelecionado = null;
   }
 
-  function mostrarHistorico() {
+  function carregarHistorico() {
     const historicoDiv = document.getElementById("historico");
     historicoDiv.innerHTML = "";
 
@@ -233,49 +189,17 @@
 
     registros.forEach(r => {
       const div = document.createElement("div");
-      div.className = "registro feliz";
+      div.className = "registro " + r.tipo;
 
       div.innerHTML = `
-        <strong>${r.data}</strong><br/>
-        <b>Situação:</b> ${r.situacao}<br/>
+        <strong>${r.data}</strong> - ${r.emoji}<br/>
         <b>Pensamento Automático:</b> ${r.pan}<br/>
-        <b>Emoção:</b> ${r.emocao}<br/>
         <b>Distorção:</b> ${r.distorcao || 'não identificada'}<br/>
+        <b>Descrição:</b> ${r.descricao || 'sem descrição'}<br/>
         <b>Pensamento Alternativo:</b> ${r.pensamentoAlt}
         <hr/>
       `;
       historicoDiv.appendChild(div);
-    });
-
-    desenharGrafico();
-  }
-
-  function desenharGrafico() {
-    const registros = JSON.parse(localStorage.getItem("meuDiarioTCC") || "[]");
-
-    if (registros.length === 0) return;
-
-    const emocoes = registros.map(r => r.emocao.toLowerCase());
-    const labels = [...new Set(emocoes)];
-    const dados = labels.map(e => emocoes.filter(x => x === e).length);
-
-    const ctx = document.getElementById('graficoHumor').getContext('2d');
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Quantidade por Emoção',
-          data: dados,
-          backgroundColor: ['#EF5350', '#FFA726', '#4CAF50', '#29B6F6'],
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: { beginAtZero: true, ticks: { stepSize: 1 } }
-        }
-      }
     });
   }
 
@@ -287,45 +211,15 @@
 
     let texto = "Meu Diário TCC\n\n";
     registros.forEach((r, i) => {
-      texto += `${i+1}. Data: ${r.data}\n`;
-      texto += `Situação: ${r.situacao}\n`;
+      texto += `${i+1}. Data: ${r.data} - ${r.emoji}\n`;
       texto += `Pensamento Automático: ${r.pan}\n`;
-      texto += `Emoção: ${r.emocao}\n`;
-      texto += `Distorção: ${r.distorcao || "não identificada"}\n`;
+      texto += `Distorção: ${r.distorcao || 'não identificada'}\n`;
+      texto += `Descrição: ${r.descricao || 'sem descrição'}\n`;
       texto += `Pensamento Alternativo: ${r.pensamentoAlt}\n\n`;
     });
 
     doc.text(texto, 10, 10);
     doc.save("meu_diario_tcc.pdf");
-  }
-
-  function carregarDados() {
-    const hoje = new Date().toISOString().split("T")[0];
-    document.getElementById("data").value = hoje;
-
-    if (window.firebaseDB && window.firebaseDB.carregar) {
-      window.firebaseDB.carregar();
-    } else {
-      setTimeout(() => {
-        if (window.firebaseDB && window.firebaseDB.carregar) {
-          window.firebaseDB.carregar();
-        }
-      }, 2000);
-    }
-
-    // Pedir permissão para notificação
-    if ("Notification" in window && Notification.permission !== "granted") {
-      Notification.requestPermission().then(permission => {
-        if (permission === "granted") {
-          setInterval(() => {
-            new Notification("⏰ Hora de registrar seu dia!", {
-              body: "Não esqueça de abrir seu Diário TCC!",
-              icon: "https://img.icons8.com/color/48/000000/open-book.png "
-            });
-          }, 24 * 60 * 60 * 1000); // 1 vez por dia
-        }
-      });
-    }
   }
 </script>
 </body>
