@@ -6,6 +6,7 @@
   <title>Estabilidade.me – Diário Emocional</title>
   <link href="https://fonts.googleapis.com/css?family=Nunito:400,700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="icon" type="image/png" href="logonuvem.png">
   <style>
     body {
       font-family: 'Nunito', Arial, sans-serif;
@@ -232,7 +233,11 @@
 <body>
   <div class="container">
     <div id="main-view">
-      <div class="logo">Estabilidade.me</div>
+      <!-- LOGO COM IMAGEM + TEXTO CENTRALIZADO -->
+      <div class="logo" style="display:flex; align-items:center; flex-direction:column; gap:4px;">
+        <img src="logonuvem.png" alt="Logo Estabilidade.me" style="width:90px; max-width:38vw; margin-bottom:6px;"/>
+        <span style="font-size:2rem; font-weight:700; color:#8857d4; letter-spacing:.01em;">Estabilidade.me</span>
+      </div>
       <button class="save-btn" onclick="showForm()">Registrar meu dia</button>
       <div class="chart-container">
         <div class="chart-title">Oscilação de Humor</div>
@@ -246,7 +251,11 @@
       </div>
     </div>
     <form id="form-view" style="display:none;">
-      <div class="logo" style="margin-bottom:12px;">Estabilidade.me</div>
+      <!-- LOGO TAMBÉM NO FORMULÁRIO -->
+      <div class="logo" style="display:flex; align-items:center; flex-direction:column; gap:4px; margin-bottom:12px;">
+        <img src="logonuvem.png" alt="Logo Estabilidade.me" style="width:90px; max-width:38vw; margin-bottom:6px;"/>
+        <span style="font-size:2rem; font-weight:700; color:#8857d4; letter-spacing:.01em;">Estabilidade.me</span>
+      </div>
       <!-- Sono -->
       <div class="card-glass">
         <h2>🛏️ Sono</h2>
@@ -345,12 +354,8 @@
     </form>
   </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <!-- O restante do código JS permanece igual ao anterior (funções, chart, etc) -->
-  <!-- Pode colar aqui o mesmo JS da versão anterior para manter as funcionalidades! -->
   <script>
-    // Código JavaScript igual ao último exemplo
-    // ... (mantém todas as funções do histórico, gráficos, salvar, etc)
-    // Só a parte visual foi corrigida
+    // O mesmo código JS das versões anteriores (registro, histórico, gráfico)
     let humorSelecionados = [];
     function selectHumor(el, humor) {
       if (humorSelecionados.includes(humor)) {
