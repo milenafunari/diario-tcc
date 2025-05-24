@@ -45,7 +45,14 @@ function removerMed(idx) {
 function showForm() {
   document.getElementById("main-view").style.display = "none";
   document.getElementById("form-view").style.display = "block";
-  resetarForm();
+  resetarForm(); function resetarForm() {
+  // Preenche o campo de data do registro com HOJE
+  const hoje = new Date();
+  const yyyy = hoje.getFullYear();
+  const mm = String(hoje.getMonth() + 1).padStart(2, '0');
+  const dd = String(hoje.getDate()).padStart(2, '0');
+  document.getElementById("data-registro").value = `${yyyy}-${mm}-${dd}`;
+  // ... resto do código já existente ...
 }
 function voltar() {
   document.getElementById("form-view").style.display = "none";
@@ -98,8 +105,13 @@ function salvarRegistro() {
   const reflexao = document.getElementById("reflexao").value;
   const gatilho = document.getElementById("gatilho").value;
   const reacao = document.getElementById("reacao").value;
-  const hoje = new Date();
-  const data = hoje.toLocaleDateString();
+  const dataInput = document.getElementById("data-registro").value;
+if (!dataInput) {
+  alert("Escolha uma data para o registro!");
+  return;
+}
+const [yyyy, mm, dd] = dataInput.split('-');
+const data = `${dd}/${mm}/${yyyy}`;
   let historico = JSON.parse(localStorage.getItem("historicoEstabilidade") || "[]");
   historico.unshift({
     data,
