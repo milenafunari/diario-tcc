@@ -18,24 +18,19 @@
       <img src="logonuvem.png" alt="Logo Estabilidade.me"/>
       <span>Estabilidade.me</span>
     </div>
-<div class="card-glass">
-  <label for="data-registro">📅 Data do registro</label>
-  <input type="date" id="data-registro" />
-</div>
-
-    <!-- Card de boas-vindas/como usar -->
-    <div class="card-glass" id="boas-vindas">
-      <h2>💡 Como usar</h2>
-      <p>
-        Este diário é seu espaço pessoal para acompanhar sono, humor, medicamentos e autocuidado.<br><br>
-        <b>Privacidade:</b> Tudo que você preencher fica <u>salvo apenas neste celular/computador</u>. 
-        Ninguém além de você terá acesso às suas informações.<br><br>
-        Você pode exportar um PDF dos seus registros — só você terá acesso ao arquivo.<br>
-        <i>Dica:</i> Preencha todo dia, do seu jeito. Cuide de você com carinho! 💜
-      </p>
-    </div>
 
     <div id="main-view">
+      <!-- Card de boas-vindas/como usar (AGORA DENTRO DO MAIN-VIEW) -->
+      <div class="card-glass" id="boas-vindas">
+        <h2>💡 Como usar</h2>
+        <p>
+          Este diário é seu espaço pessoal para acompanhar sono, humor, medicamentos e autocuidado.<br><br>
+          <b>Privacidade:</b> Tudo que você preencher fica <u>salvo apenas neste celular/computador</u>. 
+          Ninguém além de você terá acesso às suas informações.<br><br>
+          Você pode exportar um PDF dos seus registros — só você terá acesso ao arquivo.<br>
+          <i>Dica:</i> Preencha todo dia, do seu jeito. Cuide de você com carinho! 💜
+        </p>
+      </div>
       <button class="save-btn" onclick="showForm()">Registrar meu dia</button>
       <div class="chart-container">
         <div class="chart-title">Oscilação de Humor</div>
@@ -54,9 +49,14 @@
         <img src="logonuvem.png" alt="Logo Estabilidade.me"/>
         <span>Estabilidade.me</span>
       </div>
+      <!-- Data do registro: AGORA DENTRO DO FORM -->
+      <div class="card-glass">
+        <label for="data-registro">Data do registro</label>
+        <input type="date" id="data-registro" />
+      </div>
       <!-- Sono -->
       <div class="card-glass">
-        <h2>🛏️ Sono</h2>
+        <h2>Sono</h2>
         <label>Quantas horas dormiu?</label>
         <input type="number" id="horas-sono" min="0" max="24" step="0.5" placeholder="Ex: 7.5" />
         <label>Que horas foi dormir?</label>
@@ -81,7 +81,7 @@
       </div>
       <!-- Medicação -->
       <div class="card-glass">
-        <h2>💊 Medicação</h2>
+        <h2>Medicação</h2>
         <div>
           <input type="text" id="nome-medicamento" placeholder="Nome do medicamento"/>
           <input type="text" id="dose-medicamento" placeholder="Dosagem (ex: 300mg)"/>
@@ -92,7 +92,7 @@
       </div>
       <!-- Humor -->
       <div class="card-glass">
-        <h2>😊 Humor</h2>
+        <h2>Humor</h2>
         <div id="humor-options" style="margin-bottom:12px;">
           <span class="emoji-option" onclick="selectHumor(this,'Muito triste')">😭</span>
           <span class="emoji-option" onclick="selectHumor(this,'Triste')">😔</span>
@@ -109,7 +109,7 @@
       </div>
       <!-- Sinais de Alerta -->
       <div class="card-glass">
-        <h2>⚠️ Sinais de Alerta</h2>
+        <h2>Sinais de Alerta</h2>
         <div class="check-list">
           <label><input type="checkbox" id="alerta-sono" /> Sono diminuído, sem cansaço</label>
           <label><input type="checkbox" id="alerta-pensamentos" /> Pensamentos acelerados</label>
@@ -122,7 +122,7 @@
       </div>
       <!-- Autocuidado -->
       <div class="card-glass">
-        <h2>🌱 Autocuidado</h2>
+        <h2>Autocuidado</h2>
         <div class="check-list">
           <label><input type="checkbox" id="auto-horario" /> Dormi/acordei no horário</label>
           <label><input type="checkbox" id="auto-sol" /> Tomei sol/saí de casa</label>
@@ -136,12 +136,12 @@
       </div>
       <!-- Reflexão -->
       <div class="card-glass">
-        <h2>📝 Reflexão</h2>
+        <h2>Reflexão</h2>
         <textarea id="reflexao" rows="2" placeholder="Anote algo que quer lembrar sobre hoje"></textarea>
       </div>
       <!-- Gatilho e Reação -->
       <div class="card-glass">
-        <h2>🚧 Gatilho & Reação</h2>
+        <h2>Gatilho & Reação</h2>
         <label>Gatilho do dia</label>
         <input type="text" id="gatilho" placeholder="O que te incomodou hoje?" />
         <label>Como você reagiu?</label>

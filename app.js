@@ -45,14 +45,7 @@ function removerMed(idx) {
 function showForm() {
   document.getElementById("main-view").style.display = "none";
   document.getElementById("form-view").style.display = "block";
-  resetarForm(); function resetarForm() {
-  // Preenche o campo de data do registro com HOJE
-  const hoje = new Date();
-  const yyyy = hoje.getFullYear();
-  const mm = String(hoje.getMonth() + 1).padStart(2, '0');
-  const dd = String(hoje.getDate()).padStart(2, '0');
-  document.getElementById("data-registro").value = `${yyyy}-${mm}-${dd}`;
-  // ... resto do código já existente ...
+  resetarForm();
 }
 function voltar() {
   document.getElementById("form-view").style.display = "none";
@@ -61,6 +54,15 @@ function voltar() {
   renderHumorChart();
 }
 function salvarRegistro() {
+  // DATA DO REGISTRO
+  const dataInput = document.getElementById("data-registro").value;
+  if (!dataInput) {
+    alert("Escolha uma data para o registro!");
+    return;
+  }
+  const [yyyy, mm, dd] = dataInput.split('-');
+  const data = `${dd}/${mm}/${yyyy}`;
+
   const horasSono = document.getElementById("horas-sono").value;
   const horaDormir = document.getElementById("hora-dormir").value;
   const horaAcordar = document.getElementById("hora-acordar").value;
@@ -105,13 +107,7 @@ function salvarRegistro() {
   const reflexao = document.getElementById("reflexao").value;
   const gatilho = document.getElementById("gatilho").value;
   const reacao = document.getElementById("reacao").value;
-  const dataInput = document.getElementById("data-registro").value;
-if (!dataInput) {
-  alert("Escolha uma data para o registro!");
-  return;
-}
-const [yyyy, mm, dd] = dataInput.split('-');
-const data = `${dd}/${mm}/${yyyy}`;
+
   let historico = JSON.parse(localStorage.getItem("historicoEstabilidade") || "[]");
   historico.unshift({
     data,
@@ -129,6 +125,13 @@ const data = `${dd}/${mm}/${yyyy}`;
   voltar();
 }
 function resetarForm() {
+  // Data padrão: hoje
+  const hoje = new Date();
+  const yyyy = hoje.getFullYear();
+  const mm = String(hoje.getMonth() + 1).padStart(2, '0');
+  const dd = String(hoje.getDate()).padStart(2, '0');
+  document.getElementById("data-registro").value = `${yyyy}-${mm}-${dd}`;
+
   document.getElementById("horas-sono").value = "";
   document.getElementById("hora-dormir").value = "";
   document.getElementById("hora-acordar").value = "";
@@ -191,25 +194,11 @@ function renderHumorChart() {
     "Motivada": 5,
     "Confiante": 4
   };
-  let labels = [], data = [], emojis = [];
+  let labels = [], data = [];
   historico.slice(0, 15).reverse().forEach(reg => {
     labels.push(reg.data);
     let h = reg.humor.humorSelecionados && reg.humor.humorSelecionados[0];
     data.push(humorMap[h] !== undefined ? humorMap[h] : 3);
-    let emoji = "😐";
-    switch (h) {
-      case "Muito triste": emoji = "😭"; break;
-      case "Triste": emoji = "😔"; break;
-      case "Sem energia": emoji = "🥱"; break;
-      case "Estável": emoji = "🙂"; break;
-      case "Ansiosa": emoji = "😬"; break;
-      case "Irritada": emoji = "😠"; break;
-      case "Acelerada": emoji = "🤩"; break;
-      case "Feliz": emoji = "😄"; break;
-      case "Motivada": emoji = "🥳"; break;
-      case "Confiante": emoji = "😎"; break;
-    }
-    emojis.push(emoji);
   });
   if (humorChart) humorChart.destroy();
   const ctx = document.getElementById("humorChart").getContext('2d');
@@ -248,7 +237,7 @@ function renderHumorChart() {
         tooltip: {
           callbacks: {
             label: function(context) {
-              return "Humor: " + data[context.dataIndex] + " ("+emojis[context.dataIndex]+")";
+              return "Humor: " + data[context.dataIndex];
             }
           }
         }
@@ -257,7 +246,7 @@ function renderHumorChart() {
   });
 }
 
-// Função PDF delicada e personalizada
+// PDF sem emojis
 async function exportarPDF() {
   const { jsPDF } = window.jspdf;
   let historico = JSON.parse(localStorage.getItem("historicoEstabilidade") || "[]");
@@ -267,7 +256,7 @@ async function exportarPDF() {
   let y = 20;
   doc.setFont("helvetica", "bold");
   doc.setFontSize(22);
-  doc.setTextColor(136, 87, 212); // Lavanda!
+  doc.setTextColor(136, 87, 212);
   doc.text("Estabilidade.me", 105, y, {align: "center"});
   y += 10;
   doc.setFontSize(13);
@@ -277,7 +266,7 @@ async function exportarPDF() {
   y += 10;
   doc.setFontSize(11);
   doc.setTextColor(136, 87, 212);
-  doc.text("💡 Seus dados ficam salvos só neste dispositivo. Cuide de você com carinho!", 105, y, {align:"center"});
+  doc.text("Seus dados ficam salvos só neste dispositivo. Cuide de você com carinho!", 105, y, {align:"center"});
   y += 6;
   doc.setTextColor(60, 40, 70);
   doc.line(20, y+2, 190, y+2);
@@ -289,24 +278,24 @@ async function exportarPDF() {
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(136, 87, 212);
-    doc.text(`📅 ${reg.data}`, 20, y);
+    doc.text(`Data: ${reg.data}`, 20, y);
     y += 7;
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(60, 40, 70);
-    doc.text(`🛏️ Sono: ${reg.sono.horasSono}h • dormiu ${reg.sono.horaDormir} • acordou ${reg.sono.horaAcordar} • qualidade: ${reg.sono.qualidadeSono}` + (reg.sono.dif.length > 0 ? ` (${reg.sono.dif.join(", ")})` : ""), 24, y);
+    doc.text(`Sono: ${reg.sono.horasSono}h, dormiu ${reg.sono.horaDormir}, acordou ${reg.sono.horaAcordar}, qualidade: ${reg.sono.qualidadeSono}${reg.sono.dif.length > 0 ? " (" + reg.sono.dif.join(", ") + ")" : ""}`, 24, y);
     y += 6;
-    doc.text(`💊 Medicação: ${reg.medicamentos.map(m => `${m.nome} (${m.dose}${m.obs ? ", " + m.obs : ""})`).join("; ")}`, 24, y);
+    doc.text(`Medicação: ${reg.medicamentos.map(m => `${m.nome} (${m.dose}${m.obs ? ", " + m.obs : ""})`).join("; ")}`, 24, y);
     y += 6;
-    doc.text(`😊 Humor: ${reg.humor.humorSelecionados.join(", ")}${reg.humor.humorDesc ? " — " + reg.humor.humorDesc : ""}`, 24, y);
+    doc.text(`Humor: ${reg.humor.humorSelecionados.join(", ")}${reg.humor.humorDesc ? " — " + reg.humor.humorDesc : ""}`, 24, y);
     y += 6;
-    doc.text(`⚠️ Sinais: ${reg.sinais.join(", ") || "nenhum"}`, 24, y);
+    doc.text(`Sinais de alerta: ${reg.sinais.join(", ") || "nenhum"}`, 24, y);
     y += 6;
-    doc.text(`🌱 Autocuidado: ${reg.autocuidado.join(", ") || "nenhum"}`, 24, y);
+    doc.text(`Autocuidado: ${reg.autocuidado.join(", ") || "nenhum"}`, 24, y);
     y += 6;
-    doc.text(`📝 Reflexão: ${reg.reflexao || "—"}`, 24, y);
+    doc.text(`Reflexão: ${reg.reflexao || "—"}`, 24, y);
     y += 6;
-    doc.text(`🚧 Gatilho: ${reg.gatilho || "—"} • Reação: ${reg.reacao || "—"}`, 24, y);
+    doc.text(`Gatilho: ${reg.gatilho || "—"} • Reação: ${reg.reacao || "—"}`, 24, y);
     y += 10;
     doc.setTextColor(230,210,255);
     doc.line(22, y-2, 170, y-2);
@@ -317,7 +306,7 @@ async function exportarPDF() {
   doc.setFontSize(10);
   doc.setTextColor(136, 87, 212);
   doc.setFont("helvetica", "italic");
-  doc.text("Estabilidade.me • Saúde mental com leveza 💜", 105, 290, {align:"center"});
+  doc.text("Estabilidade.me • Saúde mental com leveza", 105, 290, {align:"center"});
 
   doc.save("estabilidademe_historico.pdf");
 }
