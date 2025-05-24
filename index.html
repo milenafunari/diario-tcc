@@ -9,7 +9,6 @@
   <link rel="manifest" href="manifest.json">
   <link href="https://fonts.googleapis.com/css?family=Nunito:400,700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- PDFMake (adicionado aqui!) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 </head>
@@ -21,17 +20,19 @@
       <span>Estabilidade.me</span>
     </div>
 
+    <!-- Card de boas-vindas/como usar -->
+    <div class="card-glass" id="boas-vindas">
+      <h2>💡 Como usar</h2>
+      <p>
+        Este diário é seu espaço pessoal para acompanhar sono, humor, medicamentos e autocuidado.<br><br>
+        <b>Privacidade:</b> Tudo que você preencher fica <u>salvo apenas neste celular/computador</u>. 
+        Ninguém além de você terá acesso às suas informações.<br><br>
+        Você pode exportar um PDF dos seus registros — só você terá acesso ao arquivo.<br>
+        <i>Dica:</i> Preencha todo dia, do seu jeito. Cuide de você com carinho! 💜
+      </p>
+    </div>
+
     <div id="main-view">
-      <div class="card-glass" id="boas-vindas">
-        <h2>💡 Como usar</h2>
-        <p>
-          Este diário é seu espaço pessoal para acompanhar sono, humor, medicamentos e autocuidado.<br><br>
-          <b>Privacidade:</b> Tudo que você preencher fica <u>salvo apenas neste celular/computador</u>. 
-          Ninguém além de você terá acesso às suas informações.<br><br>
-          Você pode exportar um PDF dos seus registros — só você terá acesso ao arquivo.<br>
-          <i>Dica:</i> Preencha todo dia, do seu jeito. Cuide de você com carinho! 💜
-        </p>
-      </div>
       <button class="save-btn" onclick="showForm()">Registrar meu dia</button>
       <div class="chart-container">
         <div class="chart-title">Oscilação de Humor</div>
@@ -39,7 +40,6 @@
       </div>
       <div class="history-title">Histórico</div>
       <div class="history-cards" id="history"></div>
-      <!-- Novo botão exportador PDFMake -->
       <button class="export-btn" onclick="exportarPDFMake()">Exportar Histórico (PDF)</button>
       <div class="footer">
         Criado com carinho por Bruna Funari • Visual lavanda e glassmorphism 💜
@@ -47,10 +47,14 @@
     </div>
 
     <form id="form-view" style="display:none;">
-      <!-- Campo de data do registro -->
+      <div class="logo-topo" style="margin-bottom:12px;">
+        <img src="logonuvem.png" alt="Logo Estabilidade.me"/>
+        <span>Estabilidade.me</span>
+      </div>
+      <!-- Data do registro -->
       <div class="card-glass">
-        <label for="data-registro"><b>Data do registro</b></label>
-        <input type="date" id="data-registro" required />
+        <label for="data-registro" style="font-weight: bold;">Data do registro</label>
+        <input type="date" id="data-registro" />
       </div>
       <!-- Sono -->
       <div class="card-glass">
