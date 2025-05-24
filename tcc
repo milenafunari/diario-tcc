@@ -3,224 +3,618 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🧠 Diário Emocional TCC</title>
+  <title>Estabilidade.me – Diário Emocional</title>
+  <link href="https://fonts.googleapis.com/css?family=Nunito:400,700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      max-width: 700px;
-      margin: auto;
-      padding: 20px;
-      background-color: #f9f9f9;
+      font-family: 'Nunito', Arial, sans-serif;
+      background: linear-gradient(120deg, #f7f4ff 0%, #ebe2ff 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      color: #42415a;
     }
-    h1 {
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 24px;
+    }
+    .logo {
+      font-size: 2.1rem;
       text-align: center;
-      color: #333;
+      margin-bottom: 10px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      color: #8857d4;
+    }
+    .card-glass {
+      background: rgba(255,255,255,0.68);
+      border-radius: 20px;
+      box-shadow: 0 6px 20px rgba(136, 87, 212, 0.10), 0 1.5px 8px #ccc2ef44;
+      margin-bottom: 28px;
+      padding: 22px 18px 16px 18px;
+      border: 1.2px solid #e5d6fb;
+      backdrop-filter: blur(5px);
+      position: relative;
+    }
+    h2 {
+      margin: 0 0 10px 0;
+      font-size: 1.3rem;
+      color: #8857d4;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
     label {
+      font-weight: 600;
+      margin-top: 8px;
       display: block;
-      margin-top: 15px;
-      font-weight: bold;
+      font-size: 1rem;
+      margin-bottom: 5px;
+      color: #6e659a;
     }
-    input, textarea, select, button {
+    input, select, textarea {
       width: 100%;
+      margin-bottom: 8px;
       padding: 10px;
-      margin-top: 5px;
+      border-radius: 12px;
+      border: 1.2px solid #d1c2ed;
+      font-family: 'Nunito', Arial, sans-serif;
       font-size: 1rem;
-      border-radius: 5px;
-      border: 1px solid #ccc;
+      background: rgba(255,255,255,0.82);
+      outline: none;
+      transition: border .2s;
     }
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 1rem;
+    input:focus, select:focus, textarea:focus {
+      border-color: #bfa2f7;
+    }
+    .emoji-option {
+      font-size: 2.2rem;
+      padding: 10px 0;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #f7f1ff;
+      margin: 0 8px 10px 0;
+      border: 2px solid #ebe2ff;
       cursor: pointer;
-      background-color: #4CAF50;
-      color: white;
+      transition: 0.15s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .emoji-option.selected, .emoji-option:hover {
+      background: #e3d4fb;
+      border-color: #bfa2f7;
+      box-shadow: 0 2px 10px #d4c0f650;
+    }
+    .med-list {
+      margin: 8px 0 0 0;
+    }
+    .med-item {
+      display: flex;
+      align-items: center;
+      background: rgba(226, 215, 255, 0.21);
+      padding: 8px 10px;
+      border-radius: 11px;
+      margin-bottom: 6px;
+      font-size: 0.98rem;
+      color: #6a56b1;
+      border: 1px solid #ece4f7;
+      justify-content: space-between;
+    }
+    .med-item span {
+      margin-right: 10px;
+      font-weight: 600;
+    }
+    .remove-btn {
+      background: none;
       border: none;
-      border-radius: 5px;
+      color: #ea5353;
+      font-size: 1.2rem;
+      cursor: pointer;
+      margin-left: 12px;
+      font-weight: bold;
+      transition: 0.15s;
     }
-    .registro {
-      background: white;
+    .remove-btn:hover {
+      color: #b31414;
+      transform: scale(1.15);
+    }
+    .save-btn, .export-btn {
+      width: 100%;
+      margin-top: 16px;
+      margin-bottom: 10px;
+      padding: 14px;
+      background: linear-gradient(95deg,#bfa2f7 0%, #8857d4 100%);
+      color: #fff;
+      font-size: 1.09rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 700;
+      letter-spacing: .02em;
+      transition: box-shadow 0.14s;
+      box-shadow: 0 3px 18px #bfa2f742;
+    }
+    .save-btn:hover, .export-btn:hover {
+      box-shadow: 0 6px 24px #c6a4f868;
+      background: linear-gradient(95deg, #bba1e9 0%, #a277e6 100%);
+    }
+    .check-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-top: 10px;
+    }
+    .check-list label {
+      margin-right: 0;
+      font-weight: 400;
+      font-size: 1rem;
+      color: #6e659a;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .history-title {
+      margin: 30px 0 10px 0;
+      font-size: 1.2rem;
+      color: #8857d4;
+      text-align: left;
+      font-weight: 700;
+    }
+    .history-cards {
+      margin-bottom: 32px;
+    }
+    .history-card {
+      background: rgba(255,255,255,0.88);
+      border: 1px solid #ece4f7;
+      border-radius: 15px;
+      box-shadow: 0 2px 10px #e6daf866;
+      margin-bottom: 12px;
       padding: 15px;
-      margin-top: 15px;
-      border-left: 5px solid #4CAF50;
-      border-radius: 5px;
+      color: #5c5795;
+      font-size: 0.98rem;
     }
-    .triste { border-color: #EF5350; }
-    .normal { border-color: #FFA726; }
-    .feliz { border-color: #4CAF50; }
+    .footer {
+      text-align: center;
+      font-size: 0.95rem;
+      color: #a39ec0;
+      margin-bottom: 18px;
+      margin-top: 24px;
+    }
+    .chart-container {
+      margin: 30px auto 40px auto;
+      background: rgba(255,255,255,0.74);
+      border-radius: 18px;
+      box-shadow: 0 3px 18px #bfa2f733;
+      padding: 24px 10px 18px 10px;
+      max-width: 600px;
+    }
+    .chart-title {
+      font-weight: bold;
+      color: #8857d4;
+      font-size: 1.13rem;
+      margin-bottom: 4px;
+      text-align: center;
+    }
   </style>
-
-  <!-- Biblioteca para exportar PDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js "></script>
 </head>
-<body onload="verificarLogin()">
+<body>
+  <div class="container">
+    <div id="main-view">
+      <div class="logo">Estabilidade.me</div>
+      <button class="save-btn" onclick="showForm()">Registrar meu dia</button>
 
-<div id="login-area">
-  <h2>🔐 Acesso ao Diário</h2>
-  <input type="password" id="senha-acesso" placeholder="Digite sua senha pessoal" />
-  <button onclick="logar()">Entrar</button>
-</div>
+      <!-- Gráfico de Humor -->
+      <div class="chart-container">
+        <div class="chart-title">Oscilação de Humor</div>
+        <canvas id="humorChart" height="80"></canvas>
+      </div>
 
-<div id="conteudo-diario" style="display:none;">
-  <h1>🧠 Diário Emocional TCC</h1>
-  <p style="text-align:center;">Registre seu dia com técnicas de Terapia Cognitivo-Comportamental</p>
-
-  <label for="data">Data</label>
-  <input type="date" id="data" value="" />
-
-  <label for="humor">Como você está se sentindo hoje?</label><br/>
-  <button onclick="selecionarHumor('feliz', '😊')">😊 Feliz</button>
-  <button onclick="selecionarHumor('normal', '🙂')">🙂 Normal</button>
-  <button onclick="selecionarHumor('triste', '🥺')">🥺 Triste</button>
-  <p id="mostrar-humor" style="margin-top:10px;"></p>
-
-  <label for="pan">Pensamento Automático Negativo (PAN)</label>
-  <textarea id="pan" rows="3" placeholder="O que passou pela sua mente?"></textarea>
-
-  <label for="distorcao">Distorção Cognitiva (opcional)</label>
-  <select id="distorcao">
-    <option value="">Selecione uma distorção (opcional)</option>
-    <option value="tudo-ou-nada">Tudo ou Nada</option>
-    <option value="catastrofizacao">Catastrofização</option>
-    <option value="leitura-mental">Leitura Mental</option>
-    <option value="personalizacao">Personalização</option>
-    <option value="generalizacao">Generalização Excessiva</option>
-    <option value="filtro-mental">Filtro Mental</option>
-    <option value="devastacao">Devastação</option>
-    <option value="deveria">Deveria / Precisaria</option>
-    <option value="rotulagem">Rotulagem</option>
-    <option value="culpa">Atribuição de Culpa</option>
-  </select>
-
-  <label for="descricao">Descreva mais sobre o dia (opcional)</label>
-  <textarea id="descricao" rows="5" placeholder="Como foi seu dia? O que aconteceu..."></textarea>
-
-  <label for="pensamento-alternativo">Pensamento Alternativo Racional</label>
-  <textarea id="pensamento-alternativo" rows="3" placeholder="Como eu posso pensar diferente disso?"></textarea>
-
-  <button onclick="salvarRegistro()">💾 Salvar Registro</button>
-  <button onclick="exportarPDF()">📄 Exportar para PDF</button>
-
-  <h2>📅 Histórico</h2>
-  <div id="historico"></div>
-</div>
-
-<script>
-  const SENHA_CORRETA = "minhasenha"; // ⚠️ Altere isso pra algo mais seguro
-
-  function verificarLogin() {
-    if (localStorage.getItem("logado") === "sim") {
-      document.getElementById("login-area").style.display = "none";
-      document.getElementById("conteudo-diario").style.display = "block";
+      <div class="history-title">Histórico</div>
+      <div class="history-cards" id="history"></div>
+      <button class="export-btn" onclick="exportarPDF()">Exportar Histórico</button>
+      <div class="footer">
+        Criado com carinho por Bruna Funari • Visual lavanda e glassmorphism 💜
+      </div>
+    </div>
+    <form id="form-view" style="display:none;">
+      <div class="logo" style="margin-bottom:12px;">Estabilidade.me</div>
+      <!-- Sono -->
+      <div class="card-glass">
+        <h2>🛏️ Sono</h2>
+        <label>Quantas horas dormiu?</label>
+        <input type="number" id="horas-sono" min="0" max="24" step="0.5" placeholder="Ex: 7.5" />
+        <label>Que horas foi dormir?</label>
+        <input type="time" id="hora-dormir" />
+        <label>Que horas acordou?</label>
+        <input type="time" id="hora-acordar" />
+        <label>Qualidade do sono:</label>
+        <select id="qualidade-sono">
+          <option value="">Selecione</option>
+          <option value="Ótima">Ótima</option>
+          <option value="Boa">Boa</option>
+          <option value="Regular">Regular</option>
+          <option value="Ruim">Ruim</option>
+          <option value="Péssima">Péssima</option>
+        </select>
+        <label>Dificuldades</label>
+        <div class="check-list">
+          <label><input type="checkbox" id="dif-pegar" /> Pegar no sono</label>
+          <label><input type="checkbox" id="dif-manter" /> Manter o sono</label>
+          <label><input type="checkbox" id="dif-sair" /> Sair da cama</label>
+        </div>
+      </div>
+      <!-- Medicação -->
+      <div class="card-glass">
+        <h2>💊 Medicação</h2>
+        <div>
+          <input type="text" id="nome-medicamento" placeholder="Nome do medicamento"/>
+          <input type="text" id="dose-medicamento" placeholder="Dosagem (ex: 300mg)"/>
+          <input type="text" id="obs-medicamento" placeholder="Observação (opcional)"/>
+          <button type="button" style="width:auto; margin:8px 0 0 0; padding:7px 14px;" class="save-btn" onclick="addMedicamento()">Adicionar medicamento</button>
+        </div>
+        <div class="med-list" id="med-list"></div>
+      </div>
+      <!-- Humor -->
+      <div class="card-glass">
+        <h2>😊 Humor</h2>
+        <div>
+          <div id="humor-options">
+            <span class="emoji-option" onclick="selectHumor(this,'Muito triste')">😭</span>
+            <span class="emoji-option" onclick="selectHumor(this,'Triste')">😔</span>
+            <span class="emoji-option" onclick="selectHumor(this,'Estável')">🙂</span>
+            <span class="emoji-option" onclick="selectHumor(this,'Ansiosa')">😬</span>
+            <span class="emoji-option" onclick="selectHumor(this,'Irritada')">😠</span>
+            <span class="emoji-option" onclick="selectHumor(this,'Acelerada')">🤩</span>
+            <span class="emoji-option" onclick="selectHumor(this,'Feliz')">😄</span>
+            <span class="emoji-option" onclick="selectHumor(this,'Motivada')">🥳</span>
+            <span class="emoji-option" onclick="selectHumor(this,'Confiante')">😎</span>
+            <span class="emoji-option" onclick="selectHumor(this,'Sem energia')">🥱</span>
+          </div>
+          <input type="text" id="humor-desc" placeholder="Descreva (opcional)" />
+        </div>
+      </div>
+      <!-- Sinais de Alerta -->
+      <div class="card-glass">
+        <h2>⚠️ Sinais de Alerta</h2>
+        <div class="check-list">
+          <label><input type="checkbox" id="alerta-sono" /> Sono diminuído, sem cansaço</label>
+          <label><input type="checkbox" id="alerta-pensamentos" /> Pensamentos acelerados</label>
+          <label><input type="checkbox" id="alerta-gastos" /> Gastos impulsivos</label>
+          <label><input type="checkbox" id="alerta-irritabilidade" /> Irritabilidade fora do comum</label>
+          <label><input type="checkbox" id="alerta-interesse" /> Perda de interesse por tudo</label>
+          <label><input type="checkbox" id="alerta-fora" /> Sensação de estar “fora do ar”</label>
+          <label><input type="checkbox" id="alerta-vontade" /> Vontade de sumir/desistir</label>
+        </div>
+      </div>
+      <!-- Autocuidado -->
+      <div class="card-glass">
+        <h2>🌱 Autocuidado</h2>
+        <div class="check-list">
+          <label><input type="checkbox" id="auto-horario" /> Dormi/acordei no horário</label>
+          <label><input type="checkbox" id="auto-sol" /> Tomei sol/saí de casa</label>
+          <label><input type="checkbox" id="auto-comi" /> Comi em horários razoáveis</label>
+          <label><input type="checkbox" id="auto-agua" /> Bebi água suficiente</label>
+          <label><input type="checkbox" id="auto-rede" /> Evitei redes sociais em excesso</label>
+          <label><input type="checkbox" id="auto-mexi" /> Mexi o corpo (exercício)</label>
+          <label><input type="checkbox" id="auto-prazer" /> Fiz algo que deu prazer</label>
+          <label><input type="checkbox" id="auto-amigo" /> Falei com alguém querido</label>
+        </div>
+      </div>
+      <!-- Reflexão -->
+      <div class="card-glass">
+        <h2>📝 Reflexão</h2>
+        <textarea id="reflexao" rows="2" placeholder="Anote algo que quer lembrar sobre hoje"></textarea>
+      </div>
+      <!-- Gatilho e Reação -->
+      <div class="card-glass">
+        <h2>🚧 Gatilho & Reação</h2>
+        <label>Gatilho do dia</label>
+        <input type="text" id="gatilho" placeholder="O que te incomodou hoje?" />
+        <label>Como você reagiu?</label>
+        <input type="text" id="reacao" placeholder="Como respondeu ao gatilho?" />
+      </div>
+      <button type="button" class="save-btn" onclick="salvarRegistro()">Salvar meu dia</button>
+      <button type="button" class="export-btn" onclick="voltar()">Voltar ao início</button>
+    </form>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    // Estado do humor
+    let humorSelecionados = [];
+    function selectHumor(el, humor) {
+      if (humorSelecionados.includes(humor)) {
+        humorSelecionados = humorSelecionados.filter(h => h !== humor);
+        el.classList.remove("selected");
+      } else {
+        if (humorSelecionados.length < 2) {
+          humorSelecionados.push(humor);
+          el.classList.add("selected");
+        } else {
+          alert("Você pode escolher até 2 humores principais.");
+        }
+      }
+    }
+    // Medicação
+    let medicamentos = [];
+    function addMedicamento() {
+      const nome = document.getElementById("nome-medicamento").value.trim();
+      const dose = document.getElementById("dose-medicamento").value.trim();
+      const obs = document.getElementById("obs-medicamento").value.trim();
+      if (!nome || !dose) {
+        alert("Preencha nome e dosagem!");
+        return;
+      }
+      medicamentos.push({ nome, dose, obs });
+      atualizarMedList();
+      document.getElementById("nome-medicamento").value = "";
+      document.getElementById("dose-medicamento").value = "";
+      document.getElementById("obs-medicamento").value = "";
+    }
+    function atualizarMedList() {
+      const medListDiv = document.getElementById("med-list");
+      medListDiv.innerHTML = "";
+      medicamentos.forEach((med, i) => {
+        const div = document.createElement("div");
+        div.className = "med-item";
+        div.innerHTML = `<span>${med.nome} - ${med.dose} ${med.obs ? ' ('+med.obs+')' : ''}</span>
+          <button class="remove-btn" title="Remover" onclick="removerMed(${i})">&times;</button>`;
+        medListDiv.appendChild(div);
+      });
+    }
+    function removerMed(idx) {
+      medicamentos.splice(idx, 1);
+      atualizarMedList();
+    }
+    // Exibir formulário
+    function showForm() {
+      document.getElementById("main-view").style.display = "none";
+      document.getElementById("form-view").style.display = "block";
+      resetarForm();
+    }
+    function voltar() {
+      document.getElementById("form-view").style.display = "none";
+      document.getElementById("main-view").style.display = "block";
       carregarHistorico();
-    } else {
-      document.getElementById("login-area").style.display = "block";
-      document.getElementById("conteudo-diario").style.display = "none";
+      renderHumorChart();
     }
-  }
-
-  function logar() {
-    const senhaDigitada = document.getElementById("senha-acesso").value;
-    if (senhaDigitada === SENHA_CORRETA) {
-      localStorage.setItem("logado", "sim");
-      location.reload();
-    } else {
-      alert("Senha incorreta!");
+    // Salvar registro do dia
+    function salvarRegistro() {
+      // Validação básica
+      const horasSono = document.getElementById("horas-sono").value;
+      const horaDormir = document.getElementById("hora-dormir").value;
+      const horaAcordar = document.getElementById("hora-acordar").value;
+      const qualidadeSono = document.getElementById("qualidade-sono").value;
+      const dif = [
+        document.getElementById("dif-pegar").checked ? "Pegar no sono" : null,
+        document.getElementById("dif-manter").checked ? "Manter o sono" : null,
+        document.getElementById("dif-sair").checked ? "Sair da cama" : null
+      ].filter(Boolean);
+      const humorDesc = document.getElementById("humor-desc").value;
+      if (!horasSono || !horaDormir || !horaAcordar || !qualidadeSono) {
+        alert("Preencha todas as informações de Sono!");
+        return;
+      }
+      if (medicamentos.length === 0) {
+        alert("Adicione pelo menos um medicamento.");
+        return;
+      }
+      if (humorSelecionados.length === 0) {
+        alert("Escolha pelo menos um humor.");
+        return;
+      }
+      // Sinais de alerta
+      const sinais = [
+        document.getElementById("alerta-sono").checked ? "Sono diminuído" : null,
+        document.getElementById("alerta-pensamentos").checked ? "Pensamentos acelerados" : null,
+        document.getElementById("alerta-gastos").checked ? "Gastos impulsivos" : null,
+        document.getElementById("alerta-irritabilidade").checked ? "Irritabilidade fora do comum" : null,
+        document.getElementById("alerta-interesse").checked ? "Perda de interesse" : null,
+        document.getElementById("alerta-fora").checked ? "Sensação de estar fora do ar" : null,
+        document.getElementById("alerta-vontade").checked ? "Vontade de sumir/desistir" : null,
+      ].filter(Boolean);
+      // Autocuidado
+      const autocuidado = [
+        document.getElementById("auto-horario").checked ? "Dormi/acordei no horário" : null,
+        document.getElementById("auto-sol").checked ? "Tomei sol/saí de casa" : null,
+        document.getElementById("auto-comi").checked ? "Comi em horários razoáveis" : null,
+        document.getElementById("auto-agua").checked ? "Bebi água suficiente" : null,
+        document.getElementById("auto-rede").checked ? "Evitei redes sociais em excesso" : null,
+        document.getElementById("auto-mexi").checked ? "Mexi o corpo" : null,
+        document.getElementById("auto-prazer").checked ? "Fiz algo prazeroso" : null,
+        document.getElementById("auto-amigo").checked ? "Falei com alguém querido" : null,
+      ].filter(Boolean);
+      const reflexao = document.getElementById("reflexao").value;
+      const gatilho = document.getElementById("gatilho").value;
+      const reacao = document.getElementById("reacao").value;
+      // Data do registro
+      const hoje = new Date();
+      const data = hoje.toLocaleDateString();
+      // Salvar
+      let historico = JSON.parse(localStorage.getItem("historicoEstabilidade") || "[]");
+      historico.unshift({
+        data, // coloca dia no início
+        sono: { horasSono, horaDormir, horaAcordar, qualidadeSono, dif },
+        medicamentos: JSON.parse(JSON.stringify(medicamentos)),
+        humor: { humorSelecionados, humorDesc },
+        sinais,
+        autocuidado,
+        reflexao,
+        gatilho,
+        reacao
+      });
+      localStorage.setItem("historicoEstabilidade", JSON.stringify(historico));
+      alert("Registro salvo com sucesso! 🙌");
+      voltar();
     }
-  }
-
-  let humorSelecionado = null;
-
-  function selecionarHumor(tipo, emoji) {
-    humorSelecionado = { tipo, emoji };
-    document.getElementById("mostrar-humor").innerHTML = `Você escolheu: <strong>${emoji}</strong>`;
-  }
-
-  function salvarRegistro() {
-    const data = document.getElementById("data").value;
-    const pan = document.getElementById("pan").value.trim();
-    const distorcao = document.getElementById("distorcao").value;
-    const descricao = document.getElementById("descricao").value.trim();
-    const pensamentoAlt = document.getElementById("pensamento-alternativo").value.trim();
-
-    if (!data || !pan || !pensamentoAlt) {
-      alert("Por favor, preencha todos os campos obrigatórios.");
-      return;
+    function resetarForm() {
+      document.getElementById("horas-sono").value = "";
+      document.getElementById("hora-dormir").value = "";
+      document.getElementById("hora-acordar").value = "";
+      document.getElementById("qualidade-sono").selectedIndex = 0;
+      document.getElementById("dif-pegar").checked = false;
+      document.getElementById("dif-manter").checked = false;
+      document.getElementById("dif-sair").checked = false;
+      medicamentos = [];
+      atualizarMedList();
+      document.querySelectorAll(".emoji-option").forEach(e => e.classList.remove("selected"));
+      humorSelecionados = [];
+      document.getElementById("humor-desc").value = "";
+      [
+        "alerta-sono", "alerta-pensamentos", "alerta-gastos", "alerta-irritabilidade", "alerta-interesse", "alerta-fora", "alerta-vontade",
+        "auto-horario", "auto-sol", "auto-comi", "auto-agua", "auto-rede", "auto-mexi", "auto-prazer", "auto-amigo"
+      ].forEach(id => document.getElementById(id).checked = false);
+      document.getElementById("reflexao").value = "";
+      document.getElementById("gatilho").value = "";
+      document.getElementById("reacao").value = "";
     }
-
-    if (!humorSelecionado) {
-      alert("Por favor, selecione seu humor antes de salvar.");
-      return;
+    // Histórico
+    function carregarHistorico() {
+      const histDiv = document.getElementById("history");
+      let historico = JSON.parse(localStorage.getItem("historicoEstabilidade") || "[]");
+      histDiv.innerHTML = "";
+      if (historico.length === 0) {
+        histDiv.innerHTML = "<div class='history-card'>Nenhum registro ainda.</div>";
+        return;
+      }
+      historico.forEach(reg => {
+        let medStr = reg.medicamentos.map(m => `${m.nome} (${m.dose}${m.obs ? ", " + m.obs : ""})`).join("; ");
+        let humorStr = reg.humor.humorSelecionados.join(", ");
+        let sinaisStr = reg.sinais.join(", ");
+        let autocuidadoStr = reg.autocuidado.join(", ");
+        histDiv.innerHTML += `
+        <div class="history-card">
+          <b>${reg.data}</b><br>
+          <b>Sono:</b> ${reg.sono.horasSono}h, dormiu ${reg.sono.horaDormir}, acordou ${reg.sono.horaAcordar}, qualidade: ${reg.sono.qualidadeSono} ${reg.sono.dif.length > 0 ? "(" + reg.sono.dif.join(", ") + ")" : ""}<br>
+          <b>Medicação:</b> ${medStr}<br>
+          <b>Humor:</b> ${humorStr}${reg.humor.humorDesc ? " - " + reg.humor.humorDesc : ""}<br>
+          <b>Sinais de alerta:</b> ${sinaisStr || "nenhum"}<br>
+          <b>Autocuidado:</b> ${autocuidadoStr || "nenhum"}<br>
+          <b>Reflexão:</b> ${reg.reflexao || "—"}<br>
+          <b>Gatilho & Reação:</b> ${reg.gatilho || "—"} / ${reg.reacao || "—"}
+        </div>
+        `;
+      });
     }
-
-    const registro = {
-      data,
-      ...humorSelecionado,
-      pan,
-      distorcao,
-      descricao,
-      pensamentoAlt
-    };
-
-    let registros = JSON.parse(localStorage.getItem("meuDiarioTCC") || "[]");
-    registros.push(registro);
-    localStorage.setItem("meuDiarioTCC", JSON.stringify(registros));
-
-    alert("✅ Registro salvo com sucesso!");
-    limparCampos();
+    // Chart.js – Humor Oscillation
+    let humorChart;
+    function renderHumorChart() {
+      let historico = JSON.parse(localStorage.getItem("historicoEstabilidade") || "[]");
+      // Mapeia o primeiro humor do dia para um valor numérico
+      const humorMap = {
+        "Muito triste": 0,
+        "Triste": 1,
+        "Sem energia": 2,
+        "Estável": 3,
+        "Ansiosa": 2,
+        "Irritada": 2,
+        "Acelerada": 4,
+        "Feliz": 5,
+        "Motivada": 5,
+        "Confiante": 4
+      };
+      let labels = [], data = [], emojis = [];
+      historico.slice(0, 15).reverse().forEach(reg => {
+        labels.push(reg.data);
+        let h = reg.humor.humorSelecionados && reg.humor.humorSelecionados[0];
+        data.push(humorMap[h] !== undefined ? humorMap[h] : 3);
+        // Associa o emoji do humor
+        let emoji = "😐";
+        switch (h) {
+          case "Muito triste": emoji = "😭"; break;
+          case "Triste": emoji = "😔"; break;
+          case "Sem energia": emoji = "🥱"; break;
+          case "Estável": emoji = "🙂"; break;
+          case "Ansiosa": emoji = "😬"; break;
+          case "Irritada": emoji = "😠"; break;
+          case "Acelerada": emoji = "🤩"; break;
+          case "Feliz": emoji = "😄"; break;
+          case "Motivada": emoji = "🥳"; break;
+          case "Confiante": emoji = "😎"; break;
+        }
+        emojis.push(emoji);
+      });
+      if (humorChart) humorChart.destroy();
+      const ctx = document.getElementById("humorChart").getContext('2d');
+      humorChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Humor',
+            data,
+            fill: true,
+            borderColor: "#8857d4",
+            backgroundColor: "rgba(186, 151, 243, 0.12)",
+            pointBackgroundColor: "#fff",
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            tension: 0.45,
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              min: 0,
+              max: 5,
+              stepSize: 1,
+              ticks: {
+                callback: function(val) {
+                  // Exibe a label do humor
+                  return ["Muito triste","Triste","Sem energia","Estável","Acelerada/Feliz","Confiante"][val] || "";
+                }
+              }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return "Humor: " + data[context.dataIndex] + " ("+emojis[context.dataIndex]+")";
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+    // Exportar PDF
+    async function exportarPDF() {
+      const { jsPDF } = window.jspdf;
+      let historico = JSON.parse(localStorage.getItem("historicoEstabilidade") || "[]");
+      const doc = new jsPDF();
+      let y = 12;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.text("Estabilidade.me - Diário Emocional", 12, y);
+      y += 10;
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
+      historico.forEach((reg, idx) => {
+        doc.text(`${reg.data}`, 12, y);
+        y += 6;
+        doc.setFontSize(11);
+        doc.text(`Sono: ${reg.sono.horasSono}h, dormiu ${reg.sono.horaDormir}, acordou ${reg.sono.horaAcordar}, qualidade: ${reg.sono.qualidadeSono} ${(reg.sono.dif.length > 0 ? "(" + reg.sono.dif.join(", ") + ")" : "")}`, 12, y); y += 6;
+        doc.text(`Medicação: ${reg.medicamentos.map(m => `${m.nome} (${m.dose}${m.obs ? ", " + m.obs : ""})`).join("; ")}`, 12, y); y += 6;
+        doc.text(`Humor: ${reg.humor.humorSelecionados.join(", ")}${reg.humor.humorDesc ? " - " + reg.humor.humorDesc : ""}`, 12, y); y += 6;
+        doc.text(`Sinais de alerta: ${reg.sinais.join(", ") || "nenhum"}`, 12, y); y += 6;
+        doc.text(`Autocuidado: ${reg.autocuidado.join(", ") || "nenhum"}`, 12, y); y += 6;
+        doc.text(`Reflexão: ${reg.reflexao || "—"}`, 12, y); y += 6;
+        doc.text(`Gatilho & Reação: ${reg.gatilho || "—"} / ${reg.reacao || "—"}`, 12, y); y += 10;
+        doc.setFontSize(12);
+        if (y > 270) { doc.addPage(); y = 12; }
+      });
+      doc.save("estabilidademe_historico.pdf");
+    }
     carregarHistorico();
-  }
-
-  function limparCampos() {
-    document.getElementById("pan").value = "";
-    document.getElementById("descricao").value = "";
-    document.getElementById("pensamento-alternativo").value = "";
-    document.getElementById("distorcao").selectedIndex = 0;
-    document.getElementById("mostrar-humor").innerHTML = "";
-    humorSelecionado = null;
-  }
-
-  function carregarHistorico() {
-    const historicoDiv = document.getElementById("historico");
-    historicoDiv.innerHTML = "";
-
-    const registros = JSON.parse(localStorage.getItem("meuDiarioTCC") || "[]");
-
-    registros.forEach(r => {
-      const div = document.createElement("div");
-      div.className = "registro " + r.tipo;
-
-      div.innerHTML = `
-        <strong>${r.data}</strong> - ${r.emoji}<br/>
-        <b>Pensamento Automático:</b> ${r.pan}<br/>
-        <b>Distorção:</b> ${r.distorcao || 'não identificada'}<br/>
-        <b>Descrição:</b> ${r.descricao || 'sem descrição'}<br/>
-        <b>Pensamento Alternativo:</b> ${r.pensamentoAlt}
-        <hr/>
-      `;
-      historicoDiv.appendChild(div);
-    });
-  }
-
-  async function exportarPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    const registros = JSON.parse(localStorage.getItem("meuDiarioTCC") || "[]");
-
-    let texto = "Meu Diário TCC\n\n";
-    registros.forEach((r, i) => {
-      texto += `${i+1}. Data: ${r.data} - ${r.emoji}\n`;
-      texto += `Pensamento Automático: ${r.pan}\n`;
-      texto += `Distorção: ${r.distorcao || 'não identificada'}\n`;
-      texto += `Descrição: ${r.descricao || 'sem descrição'}\n`;
-      texto += `Pensamento Alternativo: ${r.pensamentoAlt}\n\n`;
-    });
-
-    doc.text(texto, 10, 10);
-    doc.save("meu_diario_tcc.pdf");
-  }
-</script>
+    renderHumorChart();
+  </script>
 </body>
 </html>
+
