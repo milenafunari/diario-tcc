@@ -1,4 +1,51 @@
-// ...código igual ao seu para selectHumor, addMedicamento, atualizarMedList etc...
+let humorSelecionados = [];
+let medicamentos = [];
+
+function selectHumor(el, humor) {
+  if (humorSelecionados.includes(humor)) {
+    humorSelecionados = humorSelecionados.filter(h => h !== humor);
+    el.classList.remove("selected");
+  } else {
+    if (humorSelecionados.length < 2) {
+      humorSelecionados.push(humor);
+      el.classList.add("selected");
+    } else {
+      alert("Você pode escolher até 2 humores principais.");
+    }
+  }
+}
+
+function addMedicamento() {
+  const nome = document.getElementById("nome-medicamento").value.trim();
+  const dose = document.getElementById("dose-medicamento").value.trim();
+  const obs = document.getElementById("obs-medicamento").value.trim();
+  if (!nome || !dose) {
+    alert("Preencha nome e dosagem!");
+    return;
+  }
+  medicamentos.push({ nome, dose, obs });
+  atualizarMedList();
+  document.getElementById("nome-medicamento").value = "";
+  document.getElementById("dose-medicamento").value = "";
+  document.getElementById("obs-medicamento").value = "";
+}
+
+function atualizarMedList() {
+  const medListDiv = document.getElementById("med-list");
+  medListDiv.innerHTML = "";
+  medicamentos.forEach((med, i) => {
+    const div = document.createElement("div");
+    div.className = "med-item";
+    div.innerHTML = `<span>${med.nome} - ${med.dose} ${med.obs ? ' ('+med.obs+')' : ''}</span>
+      <button class="remove-btn" title="Remover" onclick="removerMed(${i})">&times;</button>`;
+    medListDiv.appendChild(div);
+  });
+}
+
+function removerMed(idx) {
+  medicamentos.splice(idx, 1);
+  atualizarMedList();
+}
 
 function showForm() {
   document.getElementById("main-view").style.display = "none";
@@ -133,9 +180,89 @@ function carregarHistorico() {
   });
 }
 
-// Chart.js igual ao anterior...
+// Gráfico de humor
+let humorChart;
+function renderHumorChart() {
+  let historico = JSON.parse(localStorage.getItem("historicoEstabilidade") || "[]");
+  const humorMap = {
+    "Muito triste": 0,
+    "Triste": 1,
+    "Sem energia": 2,
+    "Estável": 3,
+    "Ansiosa": 2,
+    "Irritada": 2,
+    "Acelerada": 4,
+    "Feliz": 5,
+    "Motivada": 5,
+    "Confiante": 4
+  };
+  let labels = [], data = [], emojis = [];
+  historico.slice(0, 15).reverse().forEach(reg => {
+    labels.push(reg.data);
+    let h = reg.humor.humorSelecionados && reg.humor.humorSelecionados[0];
+    data.push(humorMap[h] !== undefined ? humorMap[h] : 3);
+    let emoji = "😐";
+    switch (h) {
+      case "Muito triste": emoji = "😭"; break;
+      case "Triste": emoji = "😔"; break;
+      case "Sem energia": emoji = "🥱"; break;
+      case "Estável": emoji = "🙂"; break;
+      case "Ansiosa": emoji = "😬"; break;
+      case "Irritada": emoji = "😠"; break;
+      case "Acelerada": emoji = "🤩"; break;
+      case "Feliz": emoji = "😄"; break;
+      case "Motivada": emoji = "🥳"; break;
+      case "Confiante": emoji = "😎"; break;
+    }
+    emojis.push(emoji);
+  });
+  if (humorChart) humorChart.destroy();
+  const ctx = document.getElementById("humorChart").getContext('2d');
+  humorChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Humor',
+        data,
+        fill: true,
+        borderColor: "#8857d4",
+        backgroundColor: "rgba(186, 151, 243, 0.12)",
+        pointBackgroundColor: "#fff",
+        pointRadius: 6,
+        pointHoverRadius: 8,
+        tension: 0.45,
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          min: 0,
+          max: 5,
+          stepSize: 1,
+          ticks: {
+            callback: function(val) {
+              return ["Muito triste","Triste","Sem energia","Estável","Acelerada/Feliz","Confiante"][val] || "";
+            }
+          }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return "Humor: " + data[context.dataIndex] + " ("+emojis[context.dataIndex]+")";
+            }
+          }
+        }
+      }
+    }
+  });
+}
 
-// Função PDFMake corrigida
+// Exportação PDFMake
 function exportarPDFMake() {
   let historico = JSON.parse(localStorage.getItem("historicoEstabilidade") || "[]");
   if (!historico.length) {
@@ -211,11 +338,9 @@ function exportarPDFMake() {
         alignment: "center"
       }
     }
-    // Não coloque defaultStyle com font: 'Helvetica'
   };
   pdfMake.createPdf(docDefinition).download("estabilidademe_historico.pdf");
 }
 
-// ... resto do seu código (carregarHistorico, renderHumorChart etc.)
 carregarHistorico();
 renderHumorChart();
