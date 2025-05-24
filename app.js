@@ -150,6 +150,12 @@ function resetarForm() {
   document.getElementById("reflexao").value = "";
   document.getElementById("gatilho").value = "";
   document.getElementById("reacao").value = "";
+  // Data padrão: hoje
+  const hoje = new Date();
+  const yyyy = hoje.getFullYear();
+  const mm = String(hoje.getMonth() + 1).padStart(2, '0');
+  const dd = String(hoje.getDate()).padStart(2, '0');
+  document.getElementById("data-registro").value = `${yyyy}-${mm}-${dd}`;
 }
 function carregarHistorico() {
   const histDiv = document.getElementById("history");
@@ -259,70 +265,94 @@ function renderHumorChart() {
   });
 }
 
-// Função PDF delicada e personalizada
-async function exportarPDF() {
-  const { jsPDF } = window.jspdf;
+// PDFMake (Novo PDF Bonito)
+function exportarPDFMake() {
   let historico = JSON.parse(localStorage.getItem("historicoEstabilidade") || "[]");
-  const doc = new jsPDF();
+  if (!historico.length) {
+    alert("Nenhum registro para exportar.");
+    return;
+  }
 
-  // Capa/Topo
-  let y = 20;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(22);
-  doc.setTextColor(136, 87, 212); // Lavanda!
-  doc.text("Estabilidade.me", 105, y, {align: "center"});
-  y += 10;
-  doc.setFontSize(13);
-  doc.setTextColor(80,60,100);
-  doc.setFont("helvetica", "normal");
-  doc.text("Diário Emocional", 105, y, {align: "center"});
-  y += 10;
-  doc.setFontSize(11);
-  doc.setTextColor(136, 87, 212);
-  doc.text("💡 Seus dados ficam salvos só neste dispositivo. Cuide de você com carinho!", 105, y, {align:"center"});
-  y += 6;
-  doc.setTextColor(60, 40, 70);
-  doc.line(20, y+2, 190, y+2);
-  y += 10;
+  let content = [
+    { text: "Estabilidade.me", style: "header" },
+    { text: "Diário Emocional\n\n", style: "subheader" }
+  ];
 
-  // Registros
-  historico.forEach((reg, idx) => {
-    if (y > 255) { doc.addPage(); y = 20; }
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(136, 87, 212);
-    doc.text(`📅 ${reg.data}`, 20, y);
-    y += 7;
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(60, 40, 70);
-    doc.text(`🛏️ Sono: ${reg.sono.horasSono}h • dormiu ${reg.sono.horaDormir} • acordou ${reg.sono.horaAcordar} • qualidade: ${reg.sono.qualidadeSono}` + (reg.sono.dif.length > 0 ? ` (${reg.sono.dif.join(", ")})` : ""), 24, y);
-    y += 6;
-    doc.text(`💊 Medicação: ${reg.medicamentos.map(m => `${m.nome} (${m.dose}${m.obs ? ", " + m.obs : ""})`).join("; ")}`, 24, y);
-    y += 6;
-    doc.text(`😊 Humor: ${reg.humor.humorSelecionados.join(", ")}${reg.humor.humorDesc ? " — " + reg.humor.humorDesc : ""}`, 24, y);
-    y += 6;
-    doc.text(`⚠️ Sinais: ${reg.sinais.join(", ") || "nenhum"}`, 24, y);
-    y += 6;
-    doc.text(`🌱 Autocuidado: ${reg.autocuidado.join(", ") || "nenhum"}`, 24, y);
-    y += 6;
-    doc.text(`📝 Reflexão: ${reg.reflexao || "—"}`, 24, y);
-    y += 6;
-    doc.text(`🚧 Gatilho: ${reg.gatilho || "—"} • Reação: ${reg.reacao || "—"}`, 24, y);
-    y += 10;
-    doc.setTextColor(230,210,255);
-    doc.line(22, y-2, 170, y-2);
-    doc.setTextColor(60,40,70);
+  historico.forEach(reg => {
+    content.push(
+      { text: `${reg.data}`, style: "date" },
+      {
+        style: 'block',
+        table: {
+          widths: ['*'],
+          body: [[
+            {
+              stack: [
+                { text: `🛏️ Sono: ${reg.sono.horasSono}h, dormiu ${reg.sono.horaDormir}, acordou ${reg.sono.horaAcordar}, qualidade: ${reg.sono.qualidadeSono}${reg.sono.dif.length > 0 ? " (" + reg.sono.dif.join(", ") + ")" : ""}`, margin: [0, 2, 0, 0] },
+                { text: `💊 Medicação: ${reg.medicamentos.map(m => `${m.nome} (${m.dose}${m.obs ? ", " + m.obs : ""})`).join("; ")}`, margin: [0, 2, 0, 0] },
+                { text: `😊 Humor: ${reg.humor.humorSelecionados.join(", ")}${reg.humor.humorDesc ? " - " + reg.humor.humorDesc : ""}`, margin: [0, 2, 0, 0] },
+                { text: `⚠️ Sinais de alerta: ${reg.sinais.join(", ") || "nenhum"}`, margin: [0, 2, 0, 0] },
+                { text: `🌱 Autocuidado: ${reg.autocuidado.join(", ") || "nenhum"}`, margin: [0, 2, 0, 0] },
+                { text: `📝 Reflexão: ${reg.reflexao || "—"}`, margin: [0, 2, 0, 0] },
+                { text: `🚧 Gatilho & Reação: ${reg.gatilho || "—"} / ${reg.reacao || "—"}`, margin: [0, 2, 0, 2] }
+              ]
+            }
+          ]]
+        },
+        layout: {
+          fillColor: function () { return '#f5eeff'; },
+          hLineWidth: function () { return 0; },
+          vLineWidth: function () { return 0; }
+        }
+      },
+      { text: "", margin: [0, 0, 0, 6] }
+    );
   });
 
-  // Rodapé
-  doc.setFontSize(10);
-  doc.setTextColor(136, 87, 212);
-  doc.setFont("helvetica", "italic");
-  doc.text("Estabilidade.me • Saúde mental com leveza 💜", 105, 290, {align:"center"});
+  content.push(
+    { text: "\nEstabilidade.me • Saúde mental com leveza 💜", style: "footer" }
+  );
 
-  doc.save("estabilidademe_historico.pdf");
+  let docDefinition = {
+    content: content,
+    styles: {
+      header: {
+        fontSize: 22,
+        bold: true,
+        color: "#8857d4",
+        alignment: "center",
+        margin: [0, 0, 0, 2]
+      },
+      subheader: {
+        fontSize: 14,
+        color: "#6e659a",
+        alignment: "center",
+        margin: [0, 0, 0, 10]
+      },
+      date: {
+        fontSize: 12,
+        bold: true,
+        color: "#8857d4",
+        margin: [0, 8, 0, 2]
+      },
+      block: {
+        margin: [0, 0, 0, 0]
+      },
+      footer: {
+        fontSize: 11,
+        color: "#8857d4",
+        italics: true,
+        alignment: "center"
+      }
+    },
+    defaultStyle: {
+      font: 'Helvetica'
+    }
+  };
+
+  pdfMake.createPdf(docDefinition).download("estabilidademe_historico.pdf");
 }
 
+// Inicialização
 carregarHistorico();
 renderHumorChart();
