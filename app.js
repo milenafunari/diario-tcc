@@ -346,7 +346,7 @@ function exportarPDFMake() {
       }
     },
     defaultStyle: {
-      font: 'Helvetica'
+      font: 
     }
   };
 
