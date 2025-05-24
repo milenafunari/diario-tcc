@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Estabilidade.me – Diário Emocional</title>
   <link href="https://fonts.googleapis.com/css?family=Nunito:400,700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       font-family: 'Nunito', Arial, sans-serif;
@@ -32,13 +33,14 @@
       border-radius: 20px;
       box-shadow: 0 6px 20px rgba(136, 87, 212, 0.10), 0 1.5px 8px #ccc2ef44;
       margin-bottom: 28px;
-      padding: 22px 18px 16px 18px;
+      padding: 22px 24px 16px 24px;
       border: 1.2px solid #e5d6fb;
       backdrop-filter: blur(5px);
       position: relative;
+      min-width: 0;
     }
     h2 {
-      margin: 0 0 10px 0;
+      margin: 0 0 14px 0;
       font-size: 1.3rem;
       color: #8857d4;
       display: flex;
@@ -55,7 +57,7 @@
     }
     input, select, textarea {
       width: 100%;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       padding: 10px;
       border-radius: 12px;
       border: 1.2px solid #d1c2ed;
@@ -64,6 +66,8 @@
       background: rgba(255,255,255,0.82);
       outline: none;
       transition: border .2s;
+      box-sizing: border-box;
+      display: block;
     }
     input:focus, select:focus, textarea:focus {
       border-color: #bfa2f7;
@@ -82,6 +86,7 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      box-sizing: border-box;
     }
     .emoji-option.selected, .emoji-option:hover {
       background: #e3d4fb;
@@ -123,30 +128,50 @@
     }
     .save-btn, .export-btn {
       width: 100%;
-      margin-top: 16px;
-      margin-bottom: 10px;
-      padding: 14px;
+      margin-top: 20px;
+      margin-bottom: 12px;
+      padding: 15px 0;
       background: linear-gradient(95deg,#bfa2f7 0%, #8857d4 100%);
       color: #fff;
-      font-size: 1.09rem;
+      font-size: 1.13rem;
       border: none;
-      border-radius: 12px;
+      border-radius: 14px;
       cursor: pointer;
       font-weight: 700;
       letter-spacing: .02em;
-      transition: box-shadow 0.14s;
+      transition: box-shadow 0.14s, background 0.2s;
       box-shadow: 0 3px 18px #bfa2f742;
+      display: block;
     }
     .save-btn:hover, .export-btn:hover {
       box-shadow: 0 6px 24px #c6a4f868;
       background: linear-gradient(95deg, #bba1e9 0%, #a277e6 100%);
     }
+    .check-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 12px;
+    }
     .check-list label {
-      margin-right: 18px;
       font-weight: 400;
-      font-size: 0.99rem;
+      font-size: 1rem;
       color: #6e659a;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 0;
+    }
+    .check-list input[type="checkbox"] {
+      accent-color: #bfa2f7;
+      width: 22px;
+      height: 22px;
+      margin: 0;
+      margin-right: 4px;
+      vertical-align: middle;
+      position: relative;
+      top: 1px;
     }
     .history-title {
       margin: 30px 0 10px 0;
@@ -175,6 +200,33 @@
       margin-bottom: 18px;
       margin-top: 24px;
     }
+    .chart-container {
+      margin: 30px auto 40px auto;
+      background: rgba(255,255,255,0.74);
+      border-radius: 18px;
+      box-shadow: 0 3px 18px #bfa2f733;
+      padding: 24px 10px 18px 10px;
+      max-width: 600px;
+    }
+    .chart-title {
+      font-weight: bold;
+      color: #8857d4;
+      font-size: 1.13rem;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+    @media (max-width: 700px) {
+      .container {
+        padding: 12px;
+      }
+      .card-glass {
+        padding: 14px 8px 10px 8px;
+      }
+      .save-btn, .export-btn {
+        font-size: 1rem;
+        padding: 13px 0;
+      }
+    }
   </style>
 </head>
 <body>
@@ -182,6 +234,10 @@
     <div id="main-view">
       <div class="logo">Estabilidade.me</div>
       <button class="save-btn" onclick="showForm()">Registrar meu dia</button>
+      <div class="chart-container">
+        <div class="chart-title">Oscilação de Humor</div>
+        <canvas id="humorChart" height="80"></canvas>
+      </div>
       <div class="history-title">Histórico</div>
       <div class="history-cards" id="history"></div>
       <button class="export-btn" onclick="exportarPDF()">Exportar Histórico</button>
@@ -223,28 +279,26 @@
           <input type="text" id="nome-medicamento" placeholder="Nome do medicamento"/>
           <input type="text" id="dose-medicamento" placeholder="Dosagem (ex: 300mg)"/>
           <input type="text" id="obs-medicamento" placeholder="Observação (opcional)"/>
-          <button type="button" style="width:auto; margin:8px 0 0 0; padding:7px 14px;" class="save-btn" onclick="addMedicamento()">Adicionar medicamento</button>
+          <button type="button" style="width:100%; margin:8px 0 0 0; padding:12px 0;" class="save-btn" onclick="addMedicamento()">Adicionar medicamento</button>
         </div>
         <div class="med-list" id="med-list"></div>
       </div>
       <!-- Humor -->
       <div class="card-glass">
         <h2>😊 Humor</h2>
-        <div>
-          <div id="humor-options">
-            <span class="emoji-option" onclick="selectHumor(this,'Muito triste')">😭</span>
-            <span class="emoji-option" onclick="selectHumor(this,'Triste')">😔</span>
-            <span class="emoji-option" onclick="selectHumor(this,'Estável')">🙂</span>
-            <span class="emoji-option" onclick="selectHumor(this,'Ansiosa')">😬</span>
-            <span class="emoji-option" onclick="selectHumor(this,'Irritada')">😠</span>
-            <span class="emoji-option" onclick="selectHumor(this,'Acelerada')">🤩</span>
-            <span class="emoji-option" onclick="selectHumor(this,'Feliz')">😄</span>
-            <span class="emoji-option" onclick="selectHumor(this,'Motivada')">🥳</span>
-            <span class="emoji-option" onclick="selectHumor(this,'Confiante')">😎</span>
-            <span class="emoji-option" onclick="selectHumor(this,'Sem energia')">🥱</span>
-          </div>
-          <input type="text" id="humor-desc" placeholder="Descreva (opcional)" />
+        <div id="humor-options" style="margin-bottom:12px;">
+          <span class="emoji-option" onclick="selectHumor(this,'Muito triste')">😭</span>
+          <span class="emoji-option" onclick="selectHumor(this,'Triste')">😔</span>
+          <span class="emoji-option" onclick="selectHumor(this,'Estável')">🙂</span>
+          <span class="emoji-option" onclick="selectHumor(this,'Ansiosa')">😬</span>
+          <span class="emoji-option" onclick="selectHumor(this,'Irritada')">😠</span>
+          <span class="emoji-option" onclick="selectHumor(this,'Acelerada')">🤩</span>
+          <span class="emoji-option" onclick="selectHumor(this,'Feliz')">😄</span>
+          <span class="emoji-option" onclick="selectHumor(this,'Motivada')">🥳</span>
+          <span class="emoji-option" onclick="selectHumor(this,'Confiante')">😎</span>
+          <span class="emoji-option" onclick="selectHumor(this,'Sem energia')">🥱</span>
         </div>
+        <input type="text" id="humor-desc" placeholder="Descreva (opcional)" />
       </div>
       <!-- Sinais de Alerta -->
       <div class="card-glass">
@@ -291,8 +345,12 @@
     </form>
   </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- O restante do código JS permanece igual ao anterior (funções, chart, etc) -->
+  <!-- Pode colar aqui o mesmo JS da versão anterior para manter as funcionalidades! -->
   <script>
-    // Estado do humor
+    // Código JavaScript igual ao último exemplo
+    // ... (mantém todas as funções do histórico, gráficos, salvar, etc)
+    // Só a parte visual foi corrigida
     let humorSelecionados = [];
     function selectHumor(el, humor) {
       if (humorSelecionados.includes(humor)) {
@@ -307,7 +365,6 @@
         }
       }
     }
-    // Medicação
     let medicamentos = [];
     function addMedicamento() {
       const nome = document.getElementById("nome-medicamento").value.trim();
@@ -338,7 +395,6 @@
       medicamentos.splice(idx, 1);
       atualizarMedList();
     }
-    // Exibir formulário
     function showForm() {
       document.getElementById("main-view").style.display = "none";
       document.getElementById("form-view").style.display = "block";
@@ -348,10 +404,9 @@
       document.getElementById("form-view").style.display = "none";
       document.getElementById("main-view").style.display = "block";
       carregarHistorico();
+      renderHumorChart();
     }
-    // Salvar registro do dia
     function salvarRegistro() {
-      // Validação básica
       const horasSono = document.getElementById("horas-sono").value;
       const horaDormir = document.getElementById("hora-dormir").value;
       const horaAcordar = document.getElementById("hora-acordar").value;
@@ -374,7 +429,6 @@
         alert("Escolha pelo menos um humor.");
         return;
       }
-      // Sinais de alerta
       const sinais = [
         document.getElementById("alerta-sono").checked ? "Sono diminuído" : null,
         document.getElementById("alerta-pensamentos").checked ? "Pensamentos acelerados" : null,
@@ -384,7 +438,6 @@
         document.getElementById("alerta-fora").checked ? "Sensação de estar fora do ar" : null,
         document.getElementById("alerta-vontade").checked ? "Vontade de sumir/desistir" : null,
       ].filter(Boolean);
-      // Autocuidado
       const autocuidado = [
         document.getElementById("auto-horario").checked ? "Dormi/acordei no horário" : null,
         document.getElementById("auto-sol").checked ? "Tomei sol/saí de casa" : null,
@@ -398,13 +451,11 @@
       const reflexao = document.getElementById("reflexao").value;
       const gatilho = document.getElementById("gatilho").value;
       const reacao = document.getElementById("reacao").value;
-      // Data do registro
       const hoje = new Date();
       const data = hoje.toLocaleDateString();
-      // Salvar
       let historico = JSON.parse(localStorage.getItem("historicoEstabilidade") || "[]");
       historico.unshift({
-        data, // coloca dia no início
+        data,
         sono: { horasSono, horaDormir, horaAcordar, qualidadeSono, dif },
         medicamentos: JSON.parse(JSON.stringify(medicamentos)),
         humor: { humorSelecionados, humorDesc },
@@ -439,7 +490,6 @@
       document.getElementById("gatilho").value = "";
       document.getElementById("reacao").value = "";
     }
-    // Histórico
     function carregarHistorico() {
       const histDiv = document.getElementById("history");
       let historico = JSON.parse(localStorage.getItem("historicoEstabilidade") || "[]");
@@ -467,7 +517,86 @@
         `;
       });
     }
-    // Exportar PDF
+    let humorChart;
+    function renderHumorChart() {
+      let historico = JSON.parse(localStorage.getItem("historicoEstabilidade") || "[]");
+      const humorMap = {
+        "Muito triste": 0,
+        "Triste": 1,
+        "Sem energia": 2,
+        "Estável": 3,
+        "Ansiosa": 2,
+        "Irritada": 2,
+        "Acelerada": 4,
+        "Feliz": 5,
+        "Motivada": 5,
+        "Confiante": 4
+      };
+      let labels = [], data = [], emojis = [];
+      historico.slice(0, 15).reverse().forEach(reg => {
+        labels.push(reg.data);
+        let h = reg.humor.humorSelecionados && reg.humor.humorSelecionados[0];
+        data.push(humorMap[h] !== undefined ? humorMap[h] : 3);
+        let emoji = "😐";
+        switch (h) {
+          case "Muito triste": emoji = "😭"; break;
+          case "Triste": emoji = "😔"; break;
+          case "Sem energia": emoji = "🥱"; break;
+          case "Estável": emoji = "🙂"; break;
+          case "Ansiosa": emoji = "😬"; break;
+          case "Irritada": emoji = "😠"; break;
+          case "Acelerada": emoji = "🤩"; break;
+          case "Feliz": emoji = "😄"; break;
+          case "Motivada": emoji = "🥳"; break;
+          case "Confiante": emoji = "😎"; break;
+        }
+        emojis.push(emoji);
+      });
+      if (humorChart) humorChart.destroy();
+      const ctx = document.getElementById("humorChart").getContext('2d');
+      humorChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Humor',
+            data,
+            fill: true,
+            borderColor: "#8857d4",
+            backgroundColor: "rgba(186, 151, 243, 0.12)",
+            pointBackgroundColor: "#fff",
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            tension: 0.45,
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              min: 0,
+              max: 5,
+              stepSize: 1,
+              ticks: {
+                callback: function(val) {
+                  return ["Muito triste","Triste","Sem energia","Estável","Acelerada/Feliz","Confiante"][val] || "";
+                }
+              }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return "Humor: " + data[context.dataIndex] + " ("+emojis[context.dataIndex]+")";
+                }
+              }
+            }
+          }
+        }
+      });
+    }
     async function exportarPDF() {
       const { jsPDF } = window.jspdf;
       let historico = JSON.parse(localStorage.getItem("historicoEstabilidade") || "[]");
@@ -496,7 +625,9 @@
       doc.save("estabilidademe_historico.pdf");
     }
     carregarHistorico();
+    renderHumorChart();
   </script>
 </body>
 </html>
+
 
