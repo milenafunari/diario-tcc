@@ -54,15 +54,6 @@ function voltar() {
   renderHumorChart();
 }
 function salvarRegistro() {
-  // DATA DO REGISTRO
-  const dataInput = document.getElementById("data-registro").value;
-  if (!dataInput) {
-    alert("Escolha uma data para o registro!");
-    return;
-  }
-  const [yyyy, mm, dd] = dataInput.split('-');
-  const data = `${dd}/${mm}/${yyyy}`;
-
   const horasSono = document.getElementById("horas-sono").value;
   const horaDormir = document.getElementById("hora-dormir").value;
   const horaAcordar = document.getElementById("hora-acordar").value;
@@ -107,7 +98,8 @@ function salvarRegistro() {
   const reflexao = document.getElementById("reflexao").value;
   const gatilho = document.getElementById("gatilho").value;
   const reacao = document.getElementById("reacao").value;
-
+  const hoje = new Date();
+  const data = hoje.toLocaleDateString();
   let historico = JSON.parse(localStorage.getItem("historicoEstabilidade") || "[]");
   historico.unshift({
     data,
@@ -125,13 +117,6 @@ function salvarRegistro() {
   voltar();
 }
 function resetarForm() {
-  // Data padrão: hoje
-  const hoje = new Date();
-  const yyyy = hoje.getFullYear();
-  const mm = String(hoje.getMonth() + 1).padStart(2, '0');
-  const dd = String(hoje.getDate()).padStart(2, '0');
-  document.getElementById("data-registro").value = `${yyyy}-${mm}-${dd}`;
-
   document.getElementById("horas-sono").value = "";
   document.getElementById("hora-dormir").value = "";
   document.getElementById("hora-acordar").value = "";
@@ -260,7 +245,7 @@ function renderHumorChart() {
   });
 }
 
-// PDF delicado com emojis
+// Função PDF delicada e personalizada
 async function exportarPDF() {
   const { jsPDF } = window.jspdf;
   let historico = JSON.parse(localStorage.getItem("historicoEstabilidade") || "[]");
